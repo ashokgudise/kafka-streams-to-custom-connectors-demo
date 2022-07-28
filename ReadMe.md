@@ -11,7 +11,6 @@
 ###### REST Ops
 
 ````
-
 # Available Connectors
 http://localhost:8083/connectors
 
@@ -26,23 +25,39 @@ curl -X POST \
 
 #Get Installed Plugin Status
 http://localhost:8083/connectors/mysql-sink-connector/status
-
 ````
 
 ###### Maven Commands
 
+* Start Kafka Producer
 ````
-
-1. Start Kafka Producer
     $> cd kafka-producer
     $> mvn spring-boot:run -Dspring.profiles.active=avro
+````
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/producer.png" style=" width:600px ; height:600px "> 
 
-2. If you just want to consume above messages start consumer app
-    $> cd kafka-consumer
-    $> mvn spring-boot:run -Dspring.profiles.active=avro
-
-3. In order to post to messages to Database, start processor app
-    $> cd stream-processor
-    $> mvn spring-boot:run -Dspring.profiles.active=avro
+* If you just want to consume above messages start consumer app
 
 ````
+    $> cd kafka-consumer
+    $> mvn spring-boot:run -Dspring.profiles.active=avro
+````
+
+* In order to post to messages to Database, start processor app
+````
+    $> cd stream-processor
+    $> mvn spring-boot:run -Dspring.profiles.active=avro
+````
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/processor.png" style=" width:600px ; height:600px "> 
+
+###### Open Database Explorer of your own choice (I am using IntelliJ - Database Tool)
+
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/mysql_db.png" style=" width:600px ; height:600px "> 
+
+###### Query the Table that you have provided in schema
+
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/query_table.png" style=" width:600px ; height:600px "> 
+
+###### You should see data flowing to Mysql 
+
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/mysql_data.png" style=" width:600px ; height:600px "> 
