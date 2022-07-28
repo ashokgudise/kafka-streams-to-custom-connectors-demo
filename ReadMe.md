@@ -1,14 +1,14 @@
 ### References
 
-#### [Kafka Connector Ref- MySQL ](https://dev.to/cosmostail/mysql-8-kafka-connect-tutorial-on-docker-479p)
-#### [Database Identifiers, Case Sensitivity Guidelines](https://alberton.info/dbms_identifiers_and_case_sensitivity.html)
-#### [Troubleshooting JDBC Connectors](https://stackoverflow.com/questions/60763108/unable-to-post-jdbc-kafka-sink-connector-config-using-rest-call)
-#### [Kafka Connect Official Github Repo](https://github.com/confluentinc/demo-scene/tree/master/connect-jdbc)
-#### [Confluent Cluster Docker YML Reference](https://github.com/confluentinc/demo-scene/blob/master/syslog/docker-compose.yml)
-#### [Confluent Kafka Examples - Demo Scene](https://github.com/confluentinc/demo-scene/blob/master/syslog/docker-compose.yml)
+###### [Kafka Connector Ref- MySQL ](https://dev.to/cosmostail/mysql-8-kafka-connect-tutorial-on-docker-479p)
+###### [Database Identifiers, Case Sensitivity Guidelines](https://alberton.info/dbms_identifiers_and_case_sensitivity.html)
+###### [Troubleshooting JDBC Connectors](https://stackoverflow.com/questions/60763108/unable-to-post-jdbc-kafka-sink-connector-config-using-rest-call)
+###### [Kafka Connect Official Github Repo](https://github.com/confluentinc/demo-scene/tree/master/connect-jdbc)
+###### [Confluent Cluster Docker YML Reference](https://github.com/confluentinc/demo-scene/blob/master/syslog/docker-compose.yml)
+###### [Confluent Kafka Examples - Demo Scene](https://github.com/confluentinc/demo-scene/blob/master/syslog/docker-compose.yml)
 
 
-### REST Ops
+###### REST Ops
 
 ````
 
@@ -29,7 +29,7 @@ http://localhost:8083/connectors/mysql-sink-connector/status
 
 ````
 
-### Maven Commands
+###### Maven Commands
 
 ````
 
