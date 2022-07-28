@@ -185,8 +185,8 @@ services:
       - 3306:3306
     environment:
      - MYSQL_ROOT_PASSWORD=QPiN7JO@thYs5hST
-     - MYSQL_USER=connect_user
-     - MYSQL_PASSWORD=asgard
+     - MYSQL_USER=<choose a user name>
+     - MYSQL_PASSWORD=<choose a password>
     volumes:
      - ./data/mysql:/docker-entrypoint-initdb.d/
 
