@@ -1,0 +1,117 @@
+spring:
+  profiles:
+    active:
+      - avro
+
+server:
+  port: 0
+
+logging:
+  pattern:
+    console: "%clr(%d{HH:mm:ss.SSS}){blue} %clr(---){faint} %clr([%15.15t]){yellow} %clr(:){red} %clr(%m){faint}%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: string
+
+  application:
+    name: deals-processor
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+  cloud:
+    stream:
+      function:
+        definition: dealsProcessor
+      bindings:
+        dealsProcessor-in-0:
+          destination: deals_topic
+          group: streams-deals-consumer
+          consumer:
+            use-native-decoding: true
+        dealsProcessor-out-0:
+          destination: deals_topic_processed
+          producer:
+            use-native-encoding: true
+      kafka:
+        binder:
+          auto-create-topics: true
+          producer-properties:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.apache.kafka.common.serialization.StringDeserializer
+            schema.registry.url:  http://localhost:8081
+          consumer-properties:
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            schema.registry.url:  http://localhost:8081
+        streams:
+          binder:
+            brokers: localhost:9092
+            configuration:
+              schema.registry.url:  http://localhost:8081
+              commit:
+                interval:
+                  ms: 1000
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: avro
+  application:
+    name: deals-processor
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+  cloud:
+    stream:
+      function:
+        definition: dealsProcessor
+      bindings:
+        dealsProcessor-in-0:
+          destination: deals_topic
+          group: streams-deals-consumer
+          content-type: application/**avro
+          consumer:
+            use-native-decoding: true
+        dealsProcessor-out-0:
+          destination: deals_topic_processed
+          content-type: application/**avro
+          producer:
+            use-native-encoding: true
+      kafka:
+        binder:
+          auto-create-topics: true
+          producer-properties:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+            schema.registry.url:  http://localhost:8081
+          consumer-properties:
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+            specific.avro.reader: true
+            schema.registry.url:  http://localhost:8081
+        streams:
+          binder:
+            brokers: localhost:9092
+            configuration:
+              schema.registry.url:  http://localhost:8081
+              commit:
+                interval:
+                  ms: 1000
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde

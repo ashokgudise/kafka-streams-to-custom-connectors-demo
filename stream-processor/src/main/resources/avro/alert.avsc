@@ -1,0 +1,17 @@
+{
+  "namespace": "com.ashok.demos.domain",
+  "type": "record",
+  "name": "Alert",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string",
+      "avro.java.string": "String"
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "avro.java.string": "String"
+    }
+  ]
+}

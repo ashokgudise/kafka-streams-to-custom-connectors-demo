@@ -1,0 +1,27 @@
+{
+  "namespace": "com.ashok.demos.domain",
+  "type": "record",
+  "name": "AlertSubscription",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string",
+      "avro.java.string": "String"
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "avro.java.string": "String"
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "avro.java.string": "String"
+    },
+    {
+      "name": "sms",
+      "type": "string",
+      "avro.java.string": "String"
+    }
+  ]
+}
