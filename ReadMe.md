@@ -34,7 +34,7 @@ http://localhost:8083/connectors/mysql-sink-connector/status
     $> cd kafka-producer
     $> mvn spring-boot:run -Dspring.profiles.active=avro
 ````
-<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/producer.png" style=" width:600px ; height:600px "> 
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/producer.png" style=" width:600px ; height:800px "> 
 
 * If you just want to consume above messages start consumer app
 
@@ -48,16 +48,21 @@ http://localhost:8083/connectors/mysql-sink-connector/status
     $> cd stream-processor
     $> mvn spring-boot:run -Dspring.profiles.active=avro
 ````
-<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/processor.png" style=" width:600px ; height:600px "> 
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/processor.png" style=" width:600px ; height:800px "> 
 
 ###### Open Database Explorer of your own choice (I am using IntelliJ - Database Tool)
 
-<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/mysql_db.png" style=" width:600px ; height:600px "> 
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/mysql_db.png" style=" width:600px ; height:800px "> 
 
 ###### Query the Table that you have provided in schema
 
-<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/query_table.png" style=" width:600px ; height:600px "> 
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/query_table.png" style=" width:600px ; height:800px "> 
 
 ###### You should see data flowing to Mysql 
 
-<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/mysql_data.png" style=" width:600px ; height:600px "> 
+<img src="https://github.com/ashokgudise/kafka-streams-to-custom-connectors-demo/blob/main/mysql_data.png" style=" width:600px ; height:800px "> 
+
+
+#### Happy Learning 
+
+#### ~ Questions with setup? [Find me in LinkedIn ~ Ashok](https://www.linkedin.com/in/ashokgudise/)
