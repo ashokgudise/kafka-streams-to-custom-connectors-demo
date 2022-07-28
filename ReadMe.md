@@ -1,6 +1,6 @@
 # Demo - From Kafka Streams To Kafka Connectors
 
-#### This Repository is created to help those who wants to set up their Docker Environment for Confluent Kafka Cluster, MySql, then producing the alerts using Kafka Producer Template. Then those produced messages will be processed using Kafka Streams Processor and then posted to MySql using Kafka Connect API (with JDBC Connector)
+#### This Repository is created to help those who wants to set up Confluent Kafka Cluster, MySql in Docker Desktop. Then produce the messages using Kafka Producer Template, then these messages will be processed using Kafka Streams Processor and then posted to MySql using Kafka Connect API (with JDBC Connector)
 #### I have used below tech stack
 
 * ##### Spring Boot
