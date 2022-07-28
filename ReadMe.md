@@ -83,5 +83,5 @@ http://localhost:8083/connectors/mysql-sink-connector/status
 
  [Confluent Kafka Examples - Demo Scene](https://github.com/confluentinc/demo-scene/blob/master/syslog/docker-compose.yml)
 
-##### ~ Happy Learning!   
-##### Questions with setup?  [Find me in LinkedIn](https://www.linkedin.com/in/ashokgudise/)
+### ~ Happy Learning!   
+### Questions with setup?  [Find me in LinkedIn](https://www.linkedin.com/in/ashokgudise/)
