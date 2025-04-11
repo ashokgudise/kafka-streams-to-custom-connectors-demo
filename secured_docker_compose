@@ -1,0 +1,190 @@
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.2.0
+    restart: always
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:6.2.0
+    restart: always
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9093" # SSL port
+      - "9092:9092" # Plaintext port for internal communication
+
+    volumes:
+      - ./certs:/certs # Mount certificates
+
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,SSL:SSL,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,SSL://localhost:9093,PLAINTEXT_HOST://localhost:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
+      KAFKA_SSL_KEYSTORE_LOCATION: /certs/kafka.server.keystore.jks
+      KAFKA_SSL_KEYSTORE_PASSWORD: changeit
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /certs/kafka.server.truststore.jks
+      KAFKA_SSL_TRUSTSTORE_PASSWORD: changeit
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,SSL://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_SECURITY_INTER_BROKER_PROTOCOL: PLAINTEXT # Internal communication is plaintext.
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:6.2.0
+    restart: always
+    container_name: schema-registry
+    ports:
+      - "8081:8081"
+    depends_on:
+      - broker
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:29092
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect-base:6.2.0
+    restart: always
+    container_name: kafka-connect
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - 8083:8083
+    volumes:
+      - ./certs:/certs # Mount certificates
+      - $PWD/connector-libs:/connectors
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "broker:29092"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: kafka-connect
+      CONNECT_CONFIG_STORAGE_TOPIC: _kafka-connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: _kafka-connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: _kafka-connect-status
+      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
+      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_PLUGIN_PATH: '/usr/share/java,/usr/share/confluent-hub-components/,/connectors/'
+      CONNECT_SSL_KEYSTORE_LOCATION: /certs/kafka.client.keystore.jks
+      CONNECT_SSL_KEYSTORE_PASSWORD: changeit
+      CONNECT_SSL_TRUSTSTORE_LOCATION: /certs/kafka.client.truststore.jks
+      CONNECT_SSL_TRUSTSTORE_PASSWORD: changeit
+      CONNECT_SECURITY_PROTOCOL: SSL
+    command:
+      - bash
+      - -c
+      - |
+        echo "Installing connector plugins"
+        confluent-hub install --no-prompt mdrogalis/voluble:0.3.1
+        confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:5.5.3
+        echo "Downloading JDBC driver"
+        cd /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc
+        cp /connectors/mysql-connector-java-8.0.30.jar /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib
+        echo "Launching Kafka Connect worker"
+        /etc/confluent/docker/run &
+        sleep infinity
+
+  ksqldb:
+    image: confluentinc/ksqldb-server:0.21.0
+    restart: always
+    container_name: ksqldb
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./certs:/certs
+    environment:
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: broker:29092
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS: 9223372036854775807
+      KSQL_KSQL_CONNECT_URL: http://kafka-connect:8083
+      KSQL_KSQL_SERVICE_ID: confluent_rmoff_01
+      KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
+      KSQL_SECURITY_PROTOCOL: SSL
+      KSQL_SSL_KEYSTORE_LOCATION: /certs/kafka.client.keystore.jks
+      KSQL_SSL_KEYSTORE_PASSWORD: changeit
+      KSQL_SSL_TRUSTSTORE_LOCATION: /certs/kafka.client.truststore.jks
+      KSQL_SSL_TRUSTSTORE_PASSWORD: changeit
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:6.2.0
+    restart: always
+    container_name: control-center
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - "9021:9021"
+    volumes:
+      - ./certs:/certs
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
+      CONTROL_CENTER_CONNECT_CONNECT_CLUSTER: 'kafka-connect:8083'
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONTROL_CENTER_KSQL_KSQLDB_URL: "http://ksqldb:8088"
+      CONTROL_CENTER_KSQL_KSQLDB_ADVERTISED_URL: "http://localhost:8088"
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_COMMAND_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_STREAMS_CACHE_MAX_BYTES_BUFFERING: 104857600
+      CONTROL_CENTER_SECURITY_PROTOCOL: SSL
+      CONTROL_CENTER_SSL_KEYSTORE_LOCATION: /certs/kafka.client.keystore.jks
+      CONTROL_CENTER_SSL_KEYSTORE_PASSWORD: changeit
+      CONTROL_CENTER_SSL_TRUSTSTORE_LOCATION: /certs/kafka.client.truststore.jks
+      CONTROL_CENTER_SSL_TRUSTSTORE_PASSWORD: changeit
+    command:
+      - bash
+      - -c
+      - |
+        echo "Waiting two minutes for Kafka brokers to start and necessary topics to be available"
+        sleep 120
+        /etc/confluent/docker/run
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=QPiN7JO@thYs5hST
+      - MYSQL_USER=<choose a user name>
+      - MYSQL_PASSWORD=<choose a password>
+    volumes:
+      - ./data/mysql:/docker-entrypoint-initdb.d/
+
+  kafkacat:
+    image: edenhill/kafkacat:1.6.0
+    restart: always
+    container_name: kafkacat
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        apk add jq;
+        while [ 1 -eq 1 ];do sleep 60;done
